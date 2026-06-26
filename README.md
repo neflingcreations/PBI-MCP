@@ -21,6 +21,9 @@ It wraps two free, public, no-auth APIs:
 | [**Biała Lista**](https://wl-api.mf.gov.pl/) — Ministry of Finance VAT whitelist | Look up a company by **NIP** (tax ID): name, VAT status, address, registration date, bank accounts |
 | [**NBP**](https://api.nbp.pl/) — National Bank of Poland | Official PLN exchange rates (kurs średni) for ~40 currencies |
 
+> **Why live data matters**
+> AI models confidently produce plausible-looking data — a valid NIP, the right format — that can still be wrong. The only fix is to ask the authoritative source. That's what this server does, on every call.
+
 ---
 
 ## Tools

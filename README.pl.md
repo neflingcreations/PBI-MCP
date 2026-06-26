@@ -21,6 +21,9 @@ Serwer opakowuje dwa darmowe, publiczne API bez autoryzacji:
 | [**Biała Lista**](https://wl-api.mf.gov.pl/) — wykaz podatników VAT Ministerstwa Finansów | Wyszukiwanie firmy po **NIP**: nazwa, status VAT, adres, data rejestracji, rachunki bankowe |
 | [**NBP**](https://api.nbp.pl/) — Narodowy Bank Polski | Oficjalne kursy średnie PLN dla ok. 40 walut |
 
+> **Dlaczego liczą się dane na żywo**
+> Modele AI z przekonaniem generują dane, które wyglądają wiarygodnie — poprawny NIP, właściwy format — a mimo to bywają błędne. Jedynym rozwiązaniem jest zapytanie wiarygodnego źródła. Dokładnie to robi ten serwer, przy każdym wywołaniu.
+
 ---
 
 ## Narzędzia
