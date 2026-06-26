@@ -17,7 +17,46 @@ from mcp.server.fastmcp import FastMCP
 
 from . import nbp, vat
 
-mcp = FastMCP("Polish Business Intelligence")
+# Guide handed to any AI client during initialization (MCP `instructions`).
+# This tells an agent what the server is for and how to choose between tools.
+SERVER_INSTRUCTIONS = """\
+Polish Business Intelligence — live access to official Polish business data.
+
+This server connects you to two free, authoritative Polish APIs so you can
+answer questions about Polish companies and currency that you cannot answer
+from training data alone (this data changes daily):
+
+  1. Biała Lista — the Ministry of Finance VAT whitelist (company verification)
+  2. NBP — the National Bank of Poland (official mid-market exchange rates)
+
+WHEN TO USE THESE TOOLS
+- The user asks whether a Polish company is a registered/active VAT payer, or
+  wants its official details (address, registration date, bank accounts).
+- The user mentions a NIP (10-digit Polish tax ID) or REGON.
+- The user asks for an official PLN exchange rate or a currency conversion and
+  wants the authoritative central-bank number (e.g. for tax/accounting).
+
+CHOOSING A TOOL
+- check_vat_status  → fast yes/no/exempt. Use for "can I trust this invoice?"
+                      style decisions where the user just needs a verdict.
+- lookup_company    → full details (name, address, accounts). Use when the user
+                      wants the company's data, not just a yes/no.
+- get_currency_rate → one currency vs PLN.
+- get_all_rates     → the whole rate table at once.
+- convert_currency  → turn an amount from one currency into another.
+
+IMPORTANT NOTES
+- A NIP is 10 digits; spaces and dashes are fine (they are stripped). Invalid
+  NIPs are rejected before any network call — pass the user's number as-is.
+- Every tool returns ready-to-read plain text and never throws. If you get an
+  "API unavailable" message it is a transient network issue — you may retry.
+- NBP publishes rates only on banking days; for weekend/holiday dates the most
+  recent rate is returned and the actual effective date is shown — relay it.
+- All exchange rates are official NBP mid-market rates (kurs średni); state this
+  when reporting money figures so the user understands the source.
+"""
+
+mcp = FastMCP("Polish Business Intelligence", instructions=SERVER_INSTRUCTIONS)
 
 # Message reused whenever an upstream API is unreachable or times out.
 _API_UNAVAILABLE = "The API is currently unavailable. Please try again in a moment."
