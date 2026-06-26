@@ -71,12 +71,12 @@ Restart the client and the five tools appear automatically.
 
 Once connected, your agent can answer questions it previously couldn't:
 
-> **"Is the company with NIP 527-010-33-91 a registered VAT payer?"**
-> → calls `check_vat_status("5270103391")` →
-> `YES — BOOKSY INTERNATIONAL SP. Z O.O. (NIP 5270103391) is an ACTIVE VAT payer (status: Czynny).`
+> **"Is the company with NIP 951-238-16-07 a registered VAT payer?"**
+> → calls `check_vat_status("9512381607")` →
+> `YES — BOOKSY INTERNATIONAL SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ (NIP 9512381607) is an ACTIVE VAT payer (status: Czynny).`
 
-> **"Look up NIP 5270103391 and give me their address and bank accounts."**
-> → calls `lookup_company("5270103391")` → company name, VAT status, registered address, registration date, and the list of whitelisted bank accounts.
+> **"Look up NIP 9512381607 and give me their address and bank accounts."**
+> → calls `lookup_company("9512381607")` → company name, VAT status, registered address (UL. PROSTA 67, Warszawa), registration date, and the list of whitelisted bank accounts.
 
 > **"What's today's EUR/PLN rate from the NBP?"**
 > → calls `get_currency_rate("EUR")` →

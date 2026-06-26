@@ -5,8 +5,9 @@ import respx
 
 from polish_business_mcp import server, vat
 
-# A real, checksum-valid NIP (Booksy International) used throughout the spec.
-VALID_NIP = "5270103391"
+# Booksy International's real, checksum-valid NIP (verified against the live
+# Biała Lista registry). Used as the running example across the project.
+VALID_NIP = "9512381607"
 
 
 # --------------------------------------------------------------------------- #
@@ -19,12 +20,12 @@ def test_valid_nip_passes_checksum():
 
 
 def test_valid_nip_strips_spaces_and_dashes():
-    assert vat.validate_nip("527-010-33-91") == VALID_NIP
-    assert vat.validate_nip(" 527 010 3391 ") == VALID_NIP
+    assert vat.validate_nip("951-238-16-07") == VALID_NIP
+    assert vat.validate_nip(" 951 238 1607 ") == VALID_NIP
 
 
 def test_invalid_nip_wrong_checksum():
-    assert vat.validate_nip("5270103392") is None
+    assert vat.validate_nip("9512381608") is None  # last digit should be 7
 
 
 def test_invalid_nip_wrong_length():
@@ -48,11 +49,11 @@ def _subject_response(status_vat="Czynny"):
             "subject": {
                 "name": "BOOKSY INTERNATIONAL SP. Z O.O.",
                 "nip": VALID_NIP,
-                "regon": "363777164",
+                "regon": "147315920",
                 "statusVat": status_vat,
                 "workingAddress": "UL. PROSTA 67, 00-838 WARSZAWA",
-                "registrationLegalDate": "2015-07-01",
-                "accountNumbers": ["12345678901234567890123456"],
+                "registrationLegalDate": "2014-07-31",
+                "accountNumbers": ["82249000050000460038099095"],
             },
             "requestDateTime": "2026-06-26T10:00:00.000+02:00",
         }
@@ -108,7 +109,7 @@ async def test_lookup_company_formats_active_payer():
     assert "BOOKSY INTERNATIONAL" in out
     assert "Active (Czynny)" in out
     assert "UL. PROSTA 67" in out
-    assert "12345678901234567890123456" in out
+    assert "82249000050000460038099095" in out
 
 
 @respx.mock
