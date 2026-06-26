@@ -121,6 +121,10 @@ Zestaw testów mockuje każde wywołanie HTTP biblioteką [`respx`](https://lund
 
 ---
 
+## Rozwój
+
+Zbudowane z wykorzystaniem pracy wspomaganej AI (Claude Code) — wszystkie decyzje dotyczące architektury, integracji z API i weryfikacji zostały podjęte i sprawdzone ręcznie. Każde narzędzie przetestowano na żywo na prawdziwych polskich API przed publikacją.
+
 ## Licencja
 
 MIT — zobacz [`LICENSE`](./LICENSE).

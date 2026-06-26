@@ -121,6 +121,10 @@ The test suite mocks every HTTP call with [`respx`](https://lundberg.github.io/r
 
 ---
 
+## Development
+
+Built with an AI-assisted workflow (Claude Code) — with all architecture, API integration, and verification decisions made and reviewed by hand. Every tool was tested live against the real Polish APIs before release.
+
 ## License
 
 MIT — see [`LICENSE`](./LICENSE).
