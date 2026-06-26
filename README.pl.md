@@ -2,7 +2,7 @@
 
 > **Język:** [🇬🇧 English](./README.md) · **Polski**
 
-Serwer [MCP (Model Context Protocol)](https://modelcontextprotocol.io), który daje dowolnemu agentowi AI — Claude, Cursor, Copilot — natychmiastowy dostęp w czasie rzeczywistym do dwóch oficjalnych polskich źródeł danych: **Białej Listy podatników VAT (Ministerstwo Finansów)** oraz **kursów walut Narodowego Banku Polskiego (NBP)**. Bez kluczy API, bez rejestracji, bez scrapowania.
+Serwer [MCP (Model Context Protocol)](https://modelcontextprotocol.io), który daje dowolnemu agentowi AI (Claude, Cursor, Copilot) natychmiastowy dostęp w czasie rzeczywistym do dwóch oficjalnych polskich źródeł danych: **Białej Listy podatników VAT (Ministerstwo Finansów)** oraz **kursów walut Narodowego Banku Polskiego (NBP)**. Bez kluczy API, bez rejestracji, bez scrapowania.
 
 [![CI](https://github.com/neflingcreations/PBI-MCP/actions/workflows/ci.yml/badge.svg)](https://github.com/neflingcreations/PBI-MCP/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
@@ -12,17 +12,17 @@ Serwer [MCP (Model Context Protocol)](https://modelcontextprotocol.io), który d
 
 ## Po co to powstało
 
-Duże modele językowe nie mają dostępu do aktualnego rejestru VAT ani do oficjalnych kursów walut — te dane są dynamiczne, zmieniają się codziennie i znajdują się w rządowych API, na których model nigdy nie był trenowany. Ten serwer MCP wypełnia tę lukę. Po podłączeniu do agenta pozwala zweryfikować, czy polska firma jest czynnym podatnikiem VAT, pobrać jej adres rejestrowy i rachunki bankowe oraz przeliczać waluty po oficjalnym kursie średnim banku centralnego — wszystko na żywo.
+Duże modele językowe nie mają dostępu do aktualnego rejestru VAT ani do oficjalnych kursów walut. Te dane zmieniają się codziennie i znajdują się w rządowych API, na których model nigdy nie był trenowany. Ten serwer wypełnia tę lukę. Po podłączeniu do agenta pozwala sprawdzić, czy polska firma jest czynnym podatnikiem VAT, pobrać jej adres rejestrowy i rachunki bankowe oraz przeliczać waluty po oficjalnym kursie średnim banku centralnego, wszystko na żywo.
 
 Serwer opakowuje dwa darmowe, publiczne API bez autoryzacji:
 
 | Źródło | Co udostępnia |
 | --- | --- |
-| [**Biała Lista**](https://wl-api.mf.gov.pl/) — wykaz podatników VAT Ministerstwa Finansów | Wyszukiwanie firmy po **NIP**: nazwa, status VAT, adres, data rejestracji, rachunki bankowe |
-| [**NBP**](https://api.nbp.pl/) — Narodowy Bank Polski | Oficjalne kursy średnie PLN dla ok. 40 walut |
+| [**Biała Lista**](https://wl-api.mf.gov.pl/) (wykaz podatników VAT Ministerstwa Finansów) | Wyszukiwanie firmy po **NIP**: nazwa, status VAT, adres, data rejestracji, rachunki bankowe |
+| [**NBP**](https://api.nbp.pl/) (Narodowy Bank Polski) | Oficjalne kursy średnie PLN dla około 40 walut |
 
 > **Dlaczego liczą się dane na żywo**
-> Modele AI z przekonaniem generują dane, które wyglądają wiarygodnie — poprawny NIP, właściwy format — a mimo to bywają błędne. Jedynym rozwiązaniem jest zapytanie wiarygodnego źródła. Dokładnie to robi ten serwer, przy każdym wywołaniu.
+> Modele AI z przekonaniem generują dane, które wyglądają wiarygodnie (poprawny NIP we właściwym formacie), a mimo to bywają błędne. Jedyny sposób, by mieć pewność, to zapytać wiarygodne źródło. Dokładnie to robi ten serwer, przy każdym wywołaniu.
 
 ---
 
@@ -30,13 +30,13 @@ Serwer opakowuje dwa darmowe, publiczne API bez autoryzacji:
 
 | Narzędzie | Co robi | Główne dane wejściowe |
 | --- | --- | --- |
-| `lookup_company` | Pełne wyszukiwanie firmy na Białej Liście — nazwa, status VAT, adres, data rejestracji, rachunki bankowe | `nip` |
-| `check_vat_status` | Szybka odpowiedź tak / nie / zwolniony — czy ten NIP to czynny podatnik VAT? Idealne do pytania „czy mogę zaufać tej fakturze?” | `nip` |
-| `get_all_rates` | Wszystkie aktualne kursy PLN z Tabeli A NBP (EUR, USD, GBP, CHF, JPY, CZK, …) | _opcjonalnie_ `date` |
+| `lookup_company` | Pełne wyszukiwanie firmy na Białej Liście: nazwa, status VAT, adres, data rejestracji, rachunki bankowe | `nip` |
+| `check_vat_status` | Szybka odpowiedź tak / nie / zwolniony na pytanie „czy ten NIP to czynny podatnik VAT?”. Przydatne przy „czy mogę zaufać tej fakturze?” | `nip` |
+| `get_all_rates` | Wszystkie aktualne kursy PLN z Tabeli A NBP (EUR, USD, GBP, CHF, JPY, CZK i inne) | _opcjonalnie_ `date` |
 | `get_currency_rate` | Oficjalny kurs średni NBP dla jednej waluty (Tabela A, z przejściem do Tabeli B dla walut egzotycznych) | `currency_code`, _opcjonalnie_ `date` |
 | `convert_currency` | Przeliczanie między PLN a dowolną walutą lub kurs krzyżowy dwóch walut przez PLN | `amount`, `from_currency`, `to_currency`, _opcjonalnie_ `date` |
 
-Każde narzędzie zwraca czytelny tekst (nigdy surowy JSON) i nigdy nie zgłasza wyjątku — błędy wracają jako przyjazne komunikaty, na które agent może zareagować.
+Każde narzędzie zwraca czytelny tekst (nigdy surowy JSON) i nigdy nie zgłasza wyjątku. Błędy wracają jako przyjazne komunikaty, na które agent może zareagować.
 
 ---
 
@@ -76,26 +76,26 @@ Po podłączeniu agent może odpowiadać na pytania, na które wcześniej nie po
 
 > **„Czy firma o NIP 951-238-16-07 jest czynnym podatnikiem VAT?”**
 > → wywołuje `check_vat_status("9512381607")` →
-> `YES — BOOKSY INTERNATIONAL SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ (NIP 9512381607) is an ACTIVE VAT payer (status: Czynny).`
+> `YES: BOOKSY INTERNATIONAL SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ (NIP 9512381607) is an ACTIVE VAT payer (status: Czynny).`
 
 > **„Wyszukaj NIP 9512381607 i podaj adres oraz rachunki bankowe.”**
-> → wywołuje `lookup_company("9512381607")` → nazwa firmy, status VAT, adres rejestrowy (UL. PROSTA 67, Warszawa), data rejestracji oraz lista rachunków z wykazu.
+> → wywołuje `lookup_company("9512381607")` → zwraca nazwę firmy, status VAT, adres rejestrowy (UL. PROSTA 67, Warszawa), datę rejestracji oraz listę rachunków z wykazu.
 
 > **„Jaki jest dzisiejszy kurs EUR/PLN według NBP?”**
 > → wywołuje `get_currency_rate("EUR")` →
-> `EUR (euro): 4.2531 PLN za 1 EUR · data: 2026-06-26 · oficjalny kurs średni NBP.`
+> `EUR (euro): 4.2531 PLN za 1 EUR. Data 2026-06-26. Oficjalny kurs średni NBP.`
 
 > **„Przelicz 1500 PLN na GBP po oficjalnym kursie.”**
-> → wywołuje `convert_currency(1500, "PLN", "GBP")` → przeliczona kwota, użyty kurs GBP oraz data obowiązywania.
+> → wywołuje `convert_currency(1500, "PLN", "GBP")` → zwraca przeliczoną kwotę, użyty kurs GBP oraz datę obowiązywania.
 
 ---
 
 ## Źródła API
 
-- **Biała Lista** (wykaz podatników VAT) — Ministerstwo Finansów: https://wl-api.mf.gov.pl/
-- **NBP** — kursy walut, Narodowy Bank Polski: https://api.nbp.pl/
+- **Biała Lista** (wykaz podatników VAT), Ministerstwo Finansów: https://wl-api.mf.gov.pl/
+- **NBP** (kursy walut), Narodowy Bank Polski: https://api.nbp.pl/
 
-Oba są darmowe, publiczne i nie wymagają autoryzacji. Zapytanie do Białej Listy zawsze przekazuje dzisiejszą datę (wymaganą przez API); NBP publikuje kursy tylko w dni robocze, więc zapytanie z weekendu zwraca ostatni dostępny kurs, a narzędzie pokazuje rzeczywistą datę obowiązywania.
+Oba są darmowe, publiczne i nie wymagają autoryzacji. Zapytanie do Białej Listy zawsze przekazuje dzisiejszą datę, której wymaga API. NBP publikuje kursy tylko w dni robocze, więc zapytanie z weekendu zwraca ostatni dostępny kurs, a narzędzie pokazuje rzeczywistą datę, której użyło.
 
 ---
 
@@ -103,28 +103,28 @@ Oba są darmowe, publiczne i nie wymagają autoryzacji. Zapytanie do Białej Lis
 
 ```bash
 uv sync                                              # instalacja zależności (z grupą dev)
-uv run pytest                                        # testy (HTTP w pełni zamockowane — bez sieci)
+uv run pytest                                        # testy (HTTP w pełni zamockowane, bez sieci)
 uv run ruff check .                                  # lint
-uv run mcp dev src/polish_business_mcp/server.py     # MCP Inspector — ręczne wywołanie narzędzi
-uv run polish-business-mcp                           # serwer przez stdio (czeka na stdin — to normalne)
+uv run mcp dev src/polish_business_mcp/server.py     # MCP Inspector, ręczne wywołanie narzędzi
+uv run polish-business-mcp                           # serwer przez stdio (czeka na stdin, to normalne)
 ```
 
-Zestaw testów mockuje każde wywołanie HTTP biblioteką [`respx`](https://lundberg.github.io/respx/), więc działa offline i deterministycznie.
+Zestaw testów mockuje każde wywołanie HTTP biblioteką [`respx`](https://lundberg.github.io/respx/), więc działa offline i daje za każdym razem ten sam wynik.
 
 ---
 
 ## Plany rozwoju
 
-- `lookup_by_regon` — API Białej Listy przyjmuje też **REGON** (9- lub 14-cyfrowy identyfikator firmy).
-- `lookup_companies_batch` — endpoint zbiorczy (`/api/search/nips/`) weryfikuje do 30 numerów NIP w jednym wywołaniu.
+- `lookup_by_regon`: API Białej Listy przyjmuje też **REGON** (9- lub 14-cyfrowy identyfikator firmy).
+- `lookup_companies_batch`: endpoint zbiorczy (`/api/search/nips/`) weryfikuje do 30 numerów NIP w jednym wywołaniu.
 - Historyczne sprawdzanie statusu VAT na wskazaną datę.
 
 ---
 
 ## Rozwój
 
-Zbudowane z wykorzystaniem pracy wspomaganej AI (Claude Code) — wszystkie decyzje dotyczące architektury, integracji z API i weryfikacji zostały podjęte i sprawdzone ręcznie. Każde narzędzie przetestowano na żywo na prawdziwych polskich API przed publikacją.
+Zbudowane z wykorzystaniem pracy wspomaganej AI (Claude Code). Wszystkie decyzje dotyczące architektury, integracji z API i weryfikacji zostały podjęte i sprawdzone ręcznie, a każde narzędzie przetestowano na żywo na prawdziwych polskich API przed publikacją.
 
 ## Licencja
 
-MIT — zobacz [`LICENSE`](./LICENSE).
+MIT. Zobacz [`LICENSE`](./LICENSE).

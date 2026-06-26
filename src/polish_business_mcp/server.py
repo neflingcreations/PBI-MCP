@@ -140,7 +140,7 @@ async def check_vat_status(nip: str) -> str:
 
     if subject is None:
         return (
-            f"NO — NIP {cleaned} is not on the VAT whitelist "
+            f"NO: NIP {cleaned} is not on the VAT whitelist "
             "(not a registered VAT payer)."
         )
 
@@ -148,11 +148,11 @@ async def check_vat_status(nip: str) -> str:
     status_raw = subject.get("statusVat")
 
     if status_raw == "Czynny":
-        return f"YES — {name} (NIP {cleaned}) is an ACTIVE VAT payer (status: Czynny)."
+        return f"YES: {name} (NIP {cleaned}) is an ACTIVE VAT payer (status: Czynny)."
     if status_raw == "Zwolniony":
-        return f"EXEMPT — {name} (NIP {cleaned}) is VAT-exempt (status: Zwolniony)."
+        return f"EXEMPT: {name} (NIP {cleaned}) is VAT-exempt (status: Zwolniony)."
     return (
-        f"NO — {name} (NIP {cleaned}) is not an active VAT payer "
+        f"NO: {name} (NIP {cleaned}) is not an active VAT payer "
         f"(status: {status_raw or 'unknown'})."
     )
 
@@ -185,8 +185,8 @@ async def get_all_rates(date: str | None = None) -> str:
         return _API_UNAVAILABLE
 
     header = (
-        f"NBP official mid-market rates (Table {table['table']}, "
-        f"no. {table['no']}, effective {table['effectiveDate']}) — PLN per 1 unit:"
+        f"NBP official mid-market rates, PLN per 1 unit (Table {table['table']}, "
+        f"no. {table['no']}, effective {table['effectiveDate']}):"
     )
     rows = [
         f"  {r['code']}  {r['mid']:>10.4f}   {r['currency']}"

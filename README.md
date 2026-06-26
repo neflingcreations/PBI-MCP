@@ -2,7 +2,7 @@
 
 > **Language:** **English** · [🇵🇱 Polski](./README.pl.md)
 
-An [MCP (Model Context Protocol)](https://modelcontextprotocol.io) server that gives any AI agent — Claude, Cursor, Copilot — instant, live access to two official Polish data sources: the **Ministry of Finance VAT whitelist (Biała Lista)** and the **National Bank of Poland (NBP) exchange rates**. No API keys, no signup, no scraping.
+An [MCP (Model Context Protocol)](https://modelcontextprotocol.io) server that gives any AI agent (Claude, Cursor, Copilot) instant, live access to two official Polish data sources: the **Ministry of Finance VAT whitelist (Biała Lista)** and the **National Bank of Poland (NBP) exchange rates**. No API keys, no signup, no scraping.
 
 [![CI](https://github.com/neflingcreations/PBI-MCP/actions/workflows/ci.yml/badge.svg)](https://github.com/neflingcreations/PBI-MCP/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
@@ -12,17 +12,17 @@ An [MCP (Model Context Protocol)](https://modelcontextprotocol.io) server that g
 
 ## Why this exists
 
-Large language models have no live access to the Polish VAT registry or to official FX rates — that data is dynamic, changes daily, and lives behind government APIs the model was never trained on. This MCP server closes that gap. Plug it into your agent and it can verify whether a Polish company is a registered VAT payer, pull its registered address and bank accounts, and convert money at the official central-bank mid rate — all in real time.
+Large language models don't have live access to the Polish VAT registry or to official exchange rates. That data changes daily and sits behind government APIs the model was never trained on. This server closes the gap. Once it's connected, your agent can check whether a Polish company is a registered VAT payer, pull its registered address and bank accounts, and convert money at the official central-bank rate, all in real time.
 
 It wraps two free, public, no-auth APIs:
 
 | Source | What it provides |
 | --- | --- |
-| [**Biała Lista**](https://wl-api.mf.gov.pl/) — Ministry of Finance VAT whitelist | Look up a company by **NIP** (tax ID): name, VAT status, address, registration date, bank accounts |
-| [**NBP**](https://api.nbp.pl/) — National Bank of Poland | Official PLN exchange rates (kurs średni) for ~40 currencies |
+| [**Biała Lista**](https://wl-api.mf.gov.pl/) (Ministry of Finance VAT whitelist) | Look up a company by **NIP** (tax ID): name, VAT status, address, registration date, bank accounts |
+| [**NBP**](https://api.nbp.pl/) (National Bank of Poland) | Official PLN exchange rates (kurs średni) for around 40 currencies |
 
 > **Why live data matters**
-> AI models confidently produce plausible-looking data — a valid NIP, the right format — that can still be wrong. The only fix is to ask the authoritative source. That's what this server does, on every call.
+> AI models confidently produce plausible-looking data, a valid NIP in the right format, that can still be wrong. The only way to be sure is to ask the authoritative source. That's what this server does, on every call.
 
 ---
 
@@ -30,13 +30,13 @@ It wraps two free, public, no-auth APIs:
 
 | Tool | What it does | Key inputs |
 | --- | --- | --- |
-| `lookup_company` | Full company lookup on the VAT whitelist — name, VAT status, address, registration date, bank accounts | `nip` |
-| `check_vat_status` | Quick yes / no / exempt — is this NIP an active VAT payer? Good for "can I trust this invoice?" | `nip` |
-| `get_all_rates` | All current PLN rates from NBP Table A (EUR, USD, GBP, CHF, JPY, CZK, …) | _optional_ `date` |
-| `get_currency_rate` | Official NBP mid rate for one currency (Table A, falls back to Table B for exotics) | `currency_code`, _optional_ `date` |
-| `convert_currency` | Convert between PLN and any currency, or cross-rate two currencies via PLN | `amount`, `from_currency`, `to_currency`, _optional_ `date` |
+| `lookup_company` | Full company lookup on the VAT whitelist: name, VAT status, address, registration date, bank accounts | `nip` |
+| `check_vat_status` | Quick yes / no / exempt answer to "is this NIP an active VAT payer?". Handy for "can I trust this invoice?" | `nip` |
+| `get_all_rates` | All current PLN rates from NBP Table A (EUR, USD, GBP, CHF, JPY, CZK, and more) | _optional_ `date` |
+| `get_currency_rate` | Official NBP mid rate for one currency (Table A, falling back to Table B for exotics) | `currency_code`, _optional_ `date` |
+| `convert_currency` | Convert between PLN and any currency, or cross-rate two currencies through PLN | `amount`, `from_currency`, `to_currency`, _optional_ `date` |
 
-Every tool returns clean, human-readable text (never raw JSON) and never throws — errors come back as friendly messages the agent can act on.
+Every tool returns clean, human-readable text (never raw JSON), and it never throws. Errors come back as friendly messages the agent can act on.
 
 ---
 
@@ -66,36 +66,36 @@ Add this to your MCP config (Claude Desktop: `claude_desktop_config.json`):
 }
 ```
 
-Restart the client and the five tools appear automatically.
+Restart the client and the five tools show up automatically.
 
 ---
 
 ## Example agent interactions
 
-Once connected, your agent can answer questions it previously couldn't:
+Once connected, your agent can answer questions it couldn't before:
 
 > **"Is the company with NIP 951-238-16-07 a registered VAT payer?"**
 > → calls `check_vat_status("9512381607")` →
-> `YES — BOOKSY INTERNATIONAL SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ (NIP 9512381607) is an ACTIVE VAT payer (status: Czynny).`
+> `YES: BOOKSY INTERNATIONAL SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ (NIP 9512381607) is an ACTIVE VAT payer (status: Czynny).`
 
 > **"Look up NIP 9512381607 and give me their address and bank accounts."**
-> → calls `lookup_company("9512381607")` → company name, VAT status, registered address (UL. PROSTA 67, Warszawa), registration date, and the list of whitelisted bank accounts.
+> → calls `lookup_company("9512381607")` → returns the company name, VAT status, registered address (UL. PROSTA 67, Warszawa), registration date, and the list of whitelisted bank accounts.
 
 > **"What's today's EUR/PLN rate from the NBP?"**
 > → calls `get_currency_rate("EUR")` →
-> `EUR (euro): 4.2531 PLN per 1 EUR · Effective date: 2026-06-26 · official NBP mid-market rate.`
+> `EUR (euro): 4.2531 PLN per 1 EUR. Effective date 2026-06-26. Official NBP mid-market rate.`
 
 > **"Convert 1500 PLN to GBP at the official rate."**
-> → calls `convert_currency(1500, "PLN", "GBP")` → the converted amount, the GBP rate used, and the effective date.
+> → calls `convert_currency(1500, "PLN", "GBP")` → returns the converted amount, the GBP rate used, and the effective date.
 
 ---
 
 ## API sources
 
-- **Biała Lista** (VAT whitelist) — Ministry of Finance: https://wl-api.mf.gov.pl/
-- **NBP** exchange rates — National Bank of Poland: https://api.nbp.pl/
+- **Biała Lista** (VAT whitelist), Ministry of Finance: https://wl-api.mf.gov.pl/
+- **NBP** exchange rates, National Bank of Poland: https://api.nbp.pl/
 
-Both are free, public and require no authentication. The Biała Lista lookup always passes today's date as required by the API; NBP publishes rates only on banking days, so a weekend request returns the most recent rate and the tool shows the actual effective date.
+Both are free, public, and need no authentication. The Biała Lista lookup always sends today's date, which the API requires. NBP only publishes rates on banking days, so a weekend request comes back with the most recent rate, and the tool shows the actual effective date it used.
 
 ---
 
@@ -103,28 +103,28 @@ Both are free, public and require no authentication. The Biała Lista lookup alw
 
 ```bash
 uv sync                                              # install deps (incl. dev group)
-uv run pytest                                        # run tests (HTTP fully mocked — no network)
+uv run pytest                                        # run tests (HTTP fully mocked, no network)
 uv run ruff check .                                  # lint
 uv run mcp dev src/polish_business_mcp/server.py     # open the MCP Inspector and call tools by hand
-uv run polish-business-mcp                           # run the server over stdio (waits on stdin — that's normal)
+uv run polish-business-mcp                           # run the server over stdio (it waits on stdin, which is normal)
 ```
 
-The test suite mocks every HTTP call with [`respx`](https://lundberg.github.io/respx/), so it runs offline and deterministically.
+The test suite mocks every HTTP call with [`respx`](https://lundberg.github.io/respx/), so it runs offline and gives the same result every time.
 
 ---
 
 ## Roadmap
 
-- `lookup_by_regon` — the Biała Lista API also accepts **REGON** (9/14-digit company ID).
-- `lookup_companies_batch` — the batch endpoint (`/api/search/nips/`) verifies up to 30 NIPs in one call.
+- `lookup_by_regon`: the Biała Lista API also accepts **REGON** (a 9- or 14-digit company ID).
+- `lookup_companies_batch`: the batch endpoint (`/api/search/nips/`) checks up to 30 NIPs in one call.
 - Historical VAT-status checks for a given date.
 
 ---
 
 ## Development
 
-Built with an AI-assisted workflow (Claude Code) — with all architecture, API integration, and verification decisions made and reviewed by hand. Every tool was tested live against the real Polish APIs before release.
+Built with an AI-assisted workflow (Claude Code). The architecture, API integration, and verification decisions were all made and reviewed by hand, and every tool was tested live against the real Polish APIs before release.
 
 ## License
 
-MIT — see [`LICENSE`](./LICENSE).
+MIT. See [`LICENSE`](./LICENSE).
